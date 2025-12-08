@@ -2,8 +2,15 @@
 
 > A fast TUI to see the status of all git repositories on your machine.
 
-![Status](https://img.shields.io/badge/status-MVP-blue)
-![Go Version](https://img.shields.io/badge/go-1.22-00ADD8)
+![Status](https://img.shields.io/badge/status-v2.0_Released-green)
+![Go Version](https://img.shields.io/badge/go-1.20+-00ADD8)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+<p align="center">
+  <img src="demo.gif" alt="git-scope demo" width="600">
+</p>
+
+**[🌐 Visit the Landing Page](https://bharath-code.github.io/git-scope/)**
 
 ## Overview
 
@@ -11,104 +18,65 @@
 
 ### Features
 
-- 🔍 **Scan** configured directories for git repos
-- 📊 **Dashboard** showing branch, dirty files, and last commit
-- ⌨️ **Keyboard-driven** navigation
-- 🚀 **Jump** into your editor from the TUI
-- ⚡ **Fast** concurrent scanning with goroutines
+- 🔍 **Fuzzy Search**: Find any repo by name, path, or branch with `/`
+- 🛡️ **Dirty Filter**: Press `f` to see only repos with uncommitted changes
+- ⚡ **Fast caching**: Instant startup using JSON caching
+- 📊 **Dashboard**: Shows branch, staged/unstaged counts, and last commit
+- ⌨️ **Keyboard-driven**: Vim-like navigation (`j`/`k`) and sorting (`s`)
+- 🚀 **Quick Jump**: Open any repo in your editor (VSCode, nvim, etc.) with `Enter`
 
 ## Installation
 
-### From Source
+### Homebrew (macOS/Linux)
+```bash
+brew install Bharath-code/tap/git-scope
+```
 
+### From Source
 ```bash
 go install github.com/Bharath-code/git-scope/cmd/git-scope@latest
 ```
 
-Or clone and build:
-
-```bash
-git clone https://github.com/Bharath-code/git-scope.git
-cd git-scope
-go build -o git-scope ./cmd/git-scope
-```
-
 ## Usage
 
-### Launch TUI Dashboard
-
+### Launch TUI
 ```bash
 git-scope
-# or
-git-scope tui
-```
-
-### Scan and Output JSON
-
-```bash
-git-scope scan
 ```
 
 ### Configuration
-
-Create a config file at `~/.config/git-scope/config.yml`:
+On first run, `git-scope` will auto-detect your directories. To customize, edit `~/.config/git-scope/config.yml`:
 
 ```yaml
-# Directories to scan for git repos
 roots:
   - ~/code
-  - ~/projects
   - ~/work
 
-# Directories to ignore
 ignore:
   - node_modules
-  - .next
-  - dist
-  - build
-  - target
   - .venv
-  - vendor
 
-# Editor to open repos (default: code)
-editor: code
+editor: code  # or nvim, vim, helix
 ```
 
 ## Keyboard Shortcuts
 
 | Key | Action |
 |-----|--------|
-| `↑/↓` or `j/k` | Navigate repos |
-| `Enter` | Open repo in editor |
-| `r` | Rescan directories |
-| `q` | Quit |
-
-## Dashboard Columns
-
-| Column | Description |
-|--------|-------------|
-| Repo | Repository name |
-| Path | File path (truncated) |
-| Branch | Current branch |
-| Stg | Staged file count |
-| Unst | Unstaged file count |
-| Untrk | Untracked file count |
-| Last Commit | Last commit timestamp |
+| `/` | **Search** repos |
+| `f` | Toggle **Filter** (All/Dirty/Clean) |
+| `s` | Cycle **Sort** mode |
+| `1-4` | Sort by Dirty/Name/Branch/Recent |
+| `c` | **Clear** search & filters |
+| `Enter` | **Open** repo in editor |
+| `r` | **Rescan** directories |
+| `q` | **Quit** |
 
 ## Roadmap
 
-- [ ] Caching for faster startup
-- [ ] Fuzzy search filter
-- [ ] Sort by different columns
-- [ ] Quick actions (pull, push)
 - [ ] Background file watcher
-
-## Tech Stack
-
-- **Go** - Fast, compiled binary
-- **Bubbletea** - TUI framework
-- **Lipgloss** - Terminal styling
-- **Bubbles** - TUI components
+- [ ] Quick actions (pull, push)
+- [ ] Team dashboards
 
 ## License
 
