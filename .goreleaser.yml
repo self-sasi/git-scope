@@ -45,6 +45,7 @@ brews:
     repository:
       owner: Bharath-code
       name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     homepage: "https://github.com/Bharath-code/git-scope"
     description: "A fast TUI to see the status of all git repositories"
     license: "MIT"
