@@ -35,33 +35,41 @@ type Model struct {
 // NewModel creates a new TUI model
 func NewModel(cfg *config.Config) Model {
 	columns := []table.Column{
-		{Title: "Repo", Width: 20},
-		{Title: "Path", Width: 35},
-		{Title: "Branch", Width: 12},
-		{Title: "Stg", Width: 4},
-		{Title: "Unst", Width: 5},
-		{Title: "Untrk", Width: 5},
-		{Title: "Last Commit", Width: 19},
+		{Title: "⬤", Width: 2},           // Status indicator
+		{Title: "Repository", Width: 20},
+		{Title: "Path", Width: 30},
+		{Title: "Branch", Width: 15},
+		{Title: "Staged", Width: 6},
+		{Title: "Modified", Width: 8},
+		{Title: "Untracked", Width: 9},
+		{Title: "Last Commit", Width: 16},
 	}
 
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows([]table.Row{}),
 		table.WithFocused(true),
-		table.WithHeight(10),
+		table.WithHeight(12),
 	)
 
-	// Apply styles
+	// Apply modern table styles
 	s := table.DefaultStyles()
 	s.Header = s.Header.
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("240")).
+		BorderStyle(lipgloss.ThickBorder()).
+		BorderForeground(lipgloss.Color("#7C3AED")).
 		BorderBottom(true).
-		Bold(true)
+		Bold(true).
+		Foreground(lipgloss.Color("#F9FAFB")).
+		Background(lipgloss.Color("#374151"))
+	
 	s.Selected = s.Selected.
-		Foreground(lipgloss.Color("229")).
-		Background(lipgloss.Color("57")).
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(lipgloss.Color("#7C3AED")).
 		Bold(true)
+	
+	s.Cell = s.Cell.
+		Foreground(lipgloss.Color("#F9FAFB"))
+		
 	t.SetStyles(s)
 
 	return Model{
@@ -76,7 +84,7 @@ func (m Model) Init() tea.Cmd {
 	return scanReposCmd(m.cfg)
 }
 
-// reposToRows converts repos to table rows
+// reposToRows converts repos to table rows with status indicators
 func reposToRows(repos []model.Repo) []table.Row {
 	// Sort by dirty first, then by name
 	sorted := make([]model.Repo, len(repos))
@@ -94,16 +102,23 @@ func reposToRows(repos []model.Repo) []table.Row {
 	for _, r := range sorted {
 		lastCommit := "N/A"
 		if !r.Status.LastCommit.IsZero() {
-			lastCommit = r.Status.LastCommit.Format("2006-01-02 15:04")
+			lastCommit = r.Status.LastCommit.Format("Jan 02 15:04")
+		}
+
+		// Status indicator
+		indicator := "○" // Clean
+		if r.Status.IsDirty {
+			indicator = "●" // Dirty
 		}
 
 		rows = append(rows, table.Row{
-			r.Name,
-			truncatePath(r.Path, 35),
-			r.Status.Branch,
-			fmt.Sprintf("%d", r.Status.Staged),
-			fmt.Sprintf("%d", r.Status.Unstaged),
-			fmt.Sprintf("%d", r.Status.Untracked),
+			indicator,
+			truncateString(r.Name, 20),
+			truncatePath(r.Path, 30),
+			truncateString(r.Status.Branch, 15),
+			colorNumber(r.Status.Staged, "#10B981"),      // Green
+			colorNumber(r.Status.Unstaged, "#F59E0B"),    // Amber
+			colorNumber(r.Status.Untracked, "#9CA3AF"),   // Gray
 			lastCommit,
 		})
 	}
@@ -115,5 +130,21 @@ func truncatePath(path string, maxLen int) string {
 	if len(path) <= maxLen {
 		return path
 	}
-	return "..." + path[len(path)-maxLen+3:]
+	return "…" + path[len(path)-maxLen+1:]
+}
+
+// truncateString shortens a string with ellipsis
+func truncateString(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen-1] + "…"
+}
+
+// colorNumber returns a string representation of a number
+func colorNumber(n int, _ string) string {
+	if n == 0 {
+		return "—"
+	}
+	return fmt.Sprintf("%d", n)
 }
