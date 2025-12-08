@@ -80,6 +80,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.sortMode = (m.sortMode + 1) % 4
 				m.updateTable()
 				m.statusMsg = "Sorted by: " + m.GetSortModeName()
+				return m, nil
 			}
 
 		case "1":
@@ -87,6 +88,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.sortMode = SortByDirty
 				m.updateTable()
 				m.statusMsg = "Sorted by: Dirty First"
+				return m, nil
 			}
 
 		case "2":
@@ -94,6 +96,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.sortMode = SortByName
 				m.updateTable()
 				m.statusMsg = "Sorted by: Name"
+				return m, nil
 			}
 
 		case "3":
@@ -101,6 +104,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.sortMode = SortByBranch
 				m.updateTable()
 				m.statusMsg = "Sorted by: Branch"
+				return m, nil
 			}
 
 		case "4":
@@ -108,6 +112,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.sortMode = SortByLastCommit
 				m.updateTable()
 				m.statusMsg = "Sorted by: Recent"
+				return m, nil
 			}
 
 		case "e":
