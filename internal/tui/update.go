@@ -14,13 +14,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		// Adjust table height based on window size
-		m.table.SetHeight(m.height - 6) // Leave room for header and footer
+		// Adjust table height based on window size (leave room for header, stats, help, legend)
+		tableHeight := m.height - 10
+		if tableHeight < 5 {
+			tableHeight = 5
+		}
+		m.table.SetHeight(tableHeight)
 
 	case scanCompleteMsg:
 		m.repos = msg.repos
 		m.state = StateReady
-		m.table.SetRows(reposToRows(m.repos))
+		m.updateTable()
 		m.statusMsg = ""
 		return m, nil
 
@@ -30,8 +34,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case openEditorMsg:
-		// Open the editor asynchronously
-		return m, tea.ExecProcess(exec.Command(m.cfg.Editor, msg.path), nil)
+		// Open the editor and wait for it to close
+		c := exec.Command(m.cfg.Editor, msg.path)
+		return m, tea.ExecProcess(c, func(err error) tea.Msg {
+			if err != nil {
+				return editorClosedMsg{err: err}
+			}
+			return editorClosedMsg{}
+		})
+
+	case editorClosedMsg:
+		if msg.err != nil {
+			m.statusMsg = "Error: " + msg.err.Error()
+		} else {
+			m.statusMsg = ""
+		}
+		// Rescan after editor closes to update status
+		return m, scanReposCmd(m.cfg)
 
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -39,22 +58,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "enter":
-			if m.state == StateReady && len(m.repos) > 0 {
-				// Get the selected repo
-				selectedRow := m.table.Cursor()
-				if selectedRow >= 0 && selectedRow < len(m.repos) {
-					// Find the actual repo (repos are sorted in reposToRows)
-					row := m.table.SelectedRow()
-					if len(row) > 0 {
-						// Find repo by name (first column)
-						for _, repo := range m.repos {
-							if repo.Name == row[0] {
-								m.statusMsg = "Opening in " + m.cfg.Editor + "..."
-								return m, func() tea.Msg {
-									return openEditorMsg{path: repo.Path}
-								}
-							}
-						}
+			if m.state == StateReady {
+				repo := m.GetSelectedRepo()
+				if repo != nil {
+					m.statusMsg = "Opening " + repo.Name + " in " + m.cfg.Editor + "..."
+					return m, func() tea.Msg {
+						return openEditorMsg{path: repo.Path}
 					}
 				}
 			}
@@ -64,10 +73,57 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.state = StateLoading
 			m.statusMsg = "Rescanning..."
 			return m, scanReposCmd(m.cfg)
+
+		case "s":
+			// Cycle through sort modes
+			if m.state == StateReady {
+				m.sortMode = (m.sortMode + 1) % 4
+				m.updateTable()
+				m.statusMsg = "Sorted by: " + m.GetSortModeName()
+			}
+
+		case "1":
+			if m.state == StateReady {
+				m.sortMode = SortByDirty
+				m.updateTable()
+				m.statusMsg = "Sorted by: Dirty First"
+			}
+
+		case "2":
+			if m.state == StateReady {
+				m.sortMode = SortByName
+				m.updateTable()
+				m.statusMsg = "Sorted by: Name"
+			}
+
+		case "3":
+			if m.state == StateReady {
+				m.sortMode = SortByBranch
+				m.updateTable()
+				m.statusMsg = "Sorted by: Branch"
+			}
+
+		case "4":
+			if m.state == StateReady {
+				m.sortMode = SortByLastCommit
+				m.updateTable()
+				m.statusMsg = "Sorted by: Recent"
+			}
+
+		case "e":
+			// Show editor config hint
+			if m.state == StateReady {
+				m.statusMsg = "Editor: " + m.cfg.Editor + " (change in ~/.config/git-scope/config.yml)"
+			}
 		}
 	}
 
 	// Update the table
 	m.table, cmd = m.table.Update(msg)
 	return m, cmd
+}
+
+// editorClosedMsg is sent when the editor process closes
+type editorClosedMsg struct {
+	err error
 }

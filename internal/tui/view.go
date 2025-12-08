@@ -9,7 +9,6 @@ import (
 
 // View renders the TUI
 func (m Model) View() string {
-	// Apply app container style
 	content := m.renderContent()
 	return appStyle.Render(content)
 }
@@ -35,7 +34,7 @@ func (m Model) renderLoading() string {
 	// Header
 	b.WriteString(compactLogo())
 	b.WriteString("  ")
-	b.WriteString(loadingStyle.Render("Scanning repositories..."))
+	b.WriteString(loadingStyle.Render("⏳ Scanning repositories..."))
 	b.WriteString("\n\n")
 
 	// Scanning paths
@@ -102,6 +101,10 @@ func (m Model) renderDashboard() string {
 		b.WriteString("\n")
 	}
 
+	// Legend
+	b.WriteString(m.renderLegend())
+	b.WriteString("\n")
+
 	// Help footer
 	b.WriteString(m.renderHelp())
 
@@ -125,13 +128,46 @@ func (m Model) renderStats() string {
 	}
 	
 	if dirty > 0 {
-		stats = append(stats, dirtyBadgeStyle.Render(fmt.Sprintf("⚠ %d dirty", dirty)))
+		stats = append(stats, dirtyBadgeStyle.Render(fmt.Sprintf("● %d dirty", dirty)))
 	}
 	if clean > 0 {
 		stats = append(stats, cleanBadgeStyle.Render(fmt.Sprintf("✓ %d clean", clean)))
 	}
+	
+	// Sort indicator
+	sortBadge := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(lipgloss.Color("#7C3AED")).
+		Padding(0, 1).
+		Render("⇅ " + m.GetSortModeName())
+	stats = append(stats, sortBadge)
 
 	return lipgloss.JoinHorizontal(lipgloss.Center, stats...)
+}
+
+func (m Model) renderLegend() string {
+	// Legend showing what the indicators mean
+	legend := lipgloss.NewStyle().
+		Foreground(mutedColor).
+		MarginTop(1)
+	
+	dirtyLegend := lipgloss.NewStyle().
+		Foreground(dirtyColor).
+		Bold(true).
+		Render("● Dirty")
+	
+	cleanLegend := lipgloss.NewStyle().
+		Foreground(cleanColor).
+		Bold(true).
+		Render("✓ Clean")
+	
+	editorInfo := lipgloss.NewStyle().
+		Foreground(mutedColor).
+		Render(fmt.Sprintf("Editor: %s", m.cfg.Editor))
+
+	return legend.Render(
+		dirtyLegend + "  " + cleanLegend + "     " + editorInfo,
+	)
 }
 
 func (m Model) renderHelp() string {
@@ -139,6 +175,8 @@ func (m Model) renderHelp() string {
 
 	items = append(items, helpItem("↑↓", "navigate"))
 	items = append(items, helpItem("enter", "open"))
+	items = append(items, helpItem("s", "sort"))
+	items = append(items, helpItem("1-4", "sort by"))
 	items = append(items, helpItem("r", "rescan"))
 	items = append(items, helpItem("q", "quit"))
 

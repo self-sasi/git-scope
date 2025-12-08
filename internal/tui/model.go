@@ -20,29 +20,40 @@ const (
 	StateError
 )
 
+// SortMode represents different sorting options
+type SortMode int
+
+const (
+	SortByDirty SortMode = iota
+	SortByName
+	SortByBranch
+	SortByLastCommit
+)
+
 // Model is the Bubbletea model for the TUI
 type Model struct {
-	cfg       *config.Config
-	table     table.Model
-	repos     []model.Repo
-	state     State
-	err       error
-	statusMsg string
-	width     int
-	height    int
+	cfg        *config.Config
+	table      table.Model
+	repos      []model.Repo
+	sortedRepos []model.Repo  // Sorted copy for display
+	state      State
+	err        error
+	statusMsg  string
+	width      int
+	height     int
+	sortMode   SortMode
 }
 
 // NewModel creates a new TUI model
 func NewModel(cfg *config.Config) Model {
 	columns := []table.Column{
-		{Title: "⬤", Width: 2},           // Status indicator
-		{Title: "Repository", Width: 20},
-		{Title: "Path", Width: 30},
-		{Title: "Branch", Width: 15},
+		{Title: "Status", Width: 6},
+		{Title: "Repository", Width: 18},
+		{Title: "Branch", Width: 14},
 		{Title: "Staged", Width: 6},
 		{Title: "Modified", Width: 8},
 		{Title: "Untracked", Width: 9},
-		{Title: "Last Commit", Width: 16},
+		{Title: "Last Commit", Width: 14},
 	}
 
 	t := table.New(
@@ -52,30 +63,33 @@ func NewModel(cfg *config.Config) Model {
 		table.WithHeight(12),
 	)
 
-	// Apply modern table styles
+	// Apply modern table styles with strong highlighting
 	s := table.DefaultStyles()
 	s.Header = s.Header.
-		BorderStyle(lipgloss.ThickBorder()).
+		BorderStyle(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color("#7C3AED")).
 		BorderBottom(true).
 		Bold(true).
-		Foreground(lipgloss.Color("#F9FAFB")).
-		Background(lipgloss.Color("#374151"))
-	
-	s.Selected = s.Selected.
 		Foreground(lipgloss.Color("#FFFFFF")).
 		Background(lipgloss.Color("#7C3AED")).
+		Padding(0, 1)
+	
+	// Strong row highlighting
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("#000000")).
+		Background(lipgloss.Color("#A78BFA")).
 		Bold(true)
 	
 	s.Cell = s.Cell.
-		Foreground(lipgloss.Color("#F9FAFB"))
+		Padding(0, 1)
 		
 	t.SetStyles(s)
 
 	return Model{
-		cfg:   cfg,
-		table: t,
-		state: StateLoading,
+		cfg:      cfg,
+		table:    t,
+		state:    StateLoading,
+		sortMode: SortByDirty,
 	}
 }
 
@@ -84,53 +98,94 @@ func (m Model) Init() tea.Cmd {
 	return scanReposCmd(m.cfg)
 }
 
+// GetSelectedRepo returns the currently selected repo
+func (m Model) GetSelectedRepo() *model.Repo {
+	if m.state != StateReady || len(m.sortedRepos) == 0 {
+		return nil
+	}
+	
+	cursor := m.table.Cursor()
+	if cursor >= 0 && cursor < len(m.sortedRepos) {
+		return &m.sortedRepos[cursor]
+	}
+	return nil
+}
+
+// sortRepos sorts repos based on current sort mode
+func (m *Model) sortRepos() {
+	m.sortedRepos = make([]model.Repo, len(m.repos))
+	copy(m.sortedRepos, m.repos)
+	
+	switch m.sortMode {
+	case SortByDirty:
+		sort.Slice(m.sortedRepos, func(i, j int) bool {
+			if m.sortedRepos[i].Status.IsDirty != m.sortedRepos[j].Status.IsDirty {
+				return m.sortedRepos[i].Status.IsDirty
+			}
+			return m.sortedRepos[i].Name < m.sortedRepos[j].Name
+		})
+	case SortByName:
+		sort.Slice(m.sortedRepos, func(i, j int) bool {
+			return m.sortedRepos[i].Name < m.sortedRepos[j].Name
+		})
+	case SortByBranch:
+		sort.Slice(m.sortedRepos, func(i, j int) bool {
+			return m.sortedRepos[i].Status.Branch < m.sortedRepos[j].Status.Branch
+		})
+	case SortByLastCommit:
+		sort.Slice(m.sortedRepos, func(i, j int) bool {
+			return m.sortedRepos[i].Status.LastCommit.After(m.sortedRepos[j].Status.LastCommit)
+		})
+	}
+}
+
+// updateTable refreshes the table with current sorted repos
+func (m *Model) updateTable() {
+	m.sortRepos()
+	m.table.SetRows(reposToRows(m.sortedRepos))
+}
+
+// GetSortModeName returns the display name of current sort mode
+func (m Model) GetSortModeName() string {
+	switch m.sortMode {
+	case SortByDirty:
+		return "Dirty First"
+	case SortByName:
+		return "Name"
+	case SortByBranch:
+		return "Branch"
+	case SortByLastCommit:
+		return "Recent"
+	}
+	return "Unknown"
+}
+
 // reposToRows converts repos to table rows with status indicators
 func reposToRows(repos []model.Repo) []table.Row {
-	// Sort by dirty first, then by name
-	sorted := make([]model.Repo, len(repos))
-	copy(sorted, repos)
-	sort.Slice(sorted, func(i, j int) bool {
-		// Dirty repos first
-		if sorted[i].Status.IsDirty != sorted[j].Status.IsDirty {
-			return sorted[i].Status.IsDirty
-		}
-		// Then by name
-		return sorted[i].Name < sorted[j].Name
-	})
-
-	rows := make([]table.Row, 0, len(sorted))
-	for _, r := range sorted {
+	rows := make([]table.Row, 0, len(repos))
+	for _, r := range repos {
 		lastCommit := "N/A"
 		if !r.Status.LastCommit.IsZero() {
 			lastCommit = r.Status.LastCommit.Format("Jan 02 15:04")
 		}
 
-		// Status indicator
-		indicator := "○" // Clean
+		// Status indicator with text
+		status := "✓ Clean"
 		if r.Status.IsDirty {
-			indicator = "●" // Dirty
+			status = "● Dirty"
 		}
 
 		rows = append(rows, table.Row{
-			indicator,
-			truncateString(r.Name, 20),
-			truncatePath(r.Path, 30),
-			truncateString(r.Status.Branch, 15),
-			colorNumber(r.Status.Staged, "#10B981"),      // Green
-			colorNumber(r.Status.Unstaged, "#F59E0B"),    // Amber
-			colorNumber(r.Status.Untracked, "#9CA3AF"),   // Gray
+			status,
+			truncateString(r.Name, 18),
+			truncateString(r.Status.Branch, 14),
+			formatNumber(r.Status.Staged),
+			formatNumber(r.Status.Unstaged),
+			formatNumber(r.Status.Untracked),
 			lastCommit,
 		})
 	}
 	return rows
-}
-
-// truncatePath shortens a path to fit in the given width
-func truncatePath(path string, maxLen int) string {
-	if len(path) <= maxLen {
-		return path
-	}
-	return "…" + path[len(path)-maxLen+1:]
 }
 
 // truncateString shortens a string with ellipsis
@@ -141,8 +196,8 @@ func truncateString(s string, maxLen int) string {
 	return s[:maxLen-1] + "…"
 }
 
-// colorNumber returns a string representation of a number
-func colorNumber(n int, _ string) string {
+// formatNumber formats a number for display
+func formatNumber(n int) string {
 	if n == 0 {
 		return "—"
 	}
