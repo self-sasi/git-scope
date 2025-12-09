@@ -4,14 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git-Scope | The Git Command Center</title>
-    <meta name="description" content="A blazing fast TUI to manage all your local git repositories.">
+    <title>Git-Scope | Control Your Git Universe</title>
+    <meta name="description"
+        content="A blazing fast TUI to manage, search, and clean up all your local git repositories. Zero config required.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bharath-code.github.io/git-scope/">
+    <meta property="og:title" content="Git-Scope | Control Your Git Universe">
+    <meta property="og:description"
+        content="A blazing fast TUI to manage, search, and clean up all your local git repositories. Zero config required.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/Bharath-code/git-scope/main/demo.gif">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://bharath-code.github.io/git-scope/">
+    <meta property="twitter:title" content="Git-Scope | Control Your Git Universe">
+    <meta property="twitter:description"
+        content="A blazing fast TUI to manage, search, and clean up all your local git repositories. Zero config required.">
+    <meta property="twitter:image" content="https://raw.githubusercontent.com/Bharath-code/git-scope/main/demo.gif">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
         rel="stylesheet">
 
     <style>
@@ -25,6 +42,7 @@
             --primary-glow: rgba(139, 92, 246, 0.3);
             --gradient: linear-gradient(135deg, #C4B5FD 0%, #8B5CF6 100%);
             --border: #27272A;
+            --tab-bg: #1c1c21;
         }
 
         * {
@@ -53,6 +71,7 @@
             padding: 0 2rem;
         }
 
+        /* Nav */
         nav {
             padding: 2rem 0;
             display: flex;
@@ -76,21 +95,27 @@
         }
 
         .github-link {
-            transition: opacity 0.2s;
-            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .github-link:hover {
-            opacity: 1;
+            color: var(--text-main);
         }
 
+        /* Hero */
         .hero {
             padding: 6rem 0 4rem;
             text-align: center;
             position: relative;
         }
 
-        /* Subtle glow background */
         .hero::before {
             content: '';
             position: absolute;
@@ -126,12 +151,45 @@
             margin: 0 auto 3rem;
         }
 
+        /* Install Tabs */
+        .install-section {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: var(--surface);
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
         .install-box {
             background: var(--surface);
             border: 1px solid var(--border);
-            display: inline-flex;
-            flex-direction: column;
-            align-items: flex-start;
             padding: 1.5rem;
             border-radius: 12px;
             font-family: 'JetBrains Mono', monospace;
@@ -139,32 +197,28 @@
             cursor: pointer;
             transition: border-color 0.2s, transform 0.1s, box-shadow 0.2s;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
             text-align: left;
-            margin: 0 auto;
+            position: relative;
         }
 
         .install-box:hover {
             border-color: var(--primary);
-            color: var(--text-main);
-            transform: translateY(-2px);
             box-shadow: 0 8px 24px var(--primary-glow);
+            transform: translateY(-2px);
         }
 
-        .install-box:active {
-            transform: translateY(0);
+        .code-block {
+            display: none;
         }
 
-        .install-line {
-            display: flex;
-            gap: 1rem;
-            margin: 0.25rem 0;
+        .code-block.active {
+            display: block;
         }
 
         .prompt {
             color: var(--primary);
             user-select: none;
+            margin-right: 0.5rem;
         }
 
         .cmd {
@@ -173,12 +227,28 @@
 
         .comment {
             color: #555;
-            font-style: italic;
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
         }
 
+        .copy-hint {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .install-box:hover .copy-hint {
+            opacity: 1;
+        }
+
+        /* Demo */
         .demo-section {
-            margin: 4rem 0 6rem;
-            position: relative;
+            margin: 6rem 0;
         }
 
         .window-frame {
@@ -222,6 +292,7 @@
             display: block;
         }
 
+        /* Bento Grid */
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -235,6 +306,8 @@
             padding: 2rem;
             border-radius: 16px;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .card:hover {
@@ -243,37 +316,62 @@
             transform: translateY(-4px);
         }
 
+        /* Highlight specific cards */
+        .card.wide {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 768px) {
+            .card.wide {
+                grid-column: span 1;
+            }
+        }
+
         .card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            color: var(--primary);
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 1.25rem;
         }
 
         .card p {
             color: var(--text-muted);
-            line-height: 1.6;
+            font-size: 0.95rem;
         }
 
-        .card-icon {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
+        .key {
             display: inline-block;
-            background: rgba(139, 92, 246, 0.1);
-            padding: 0.75rem;
-            border-radius: 12px;
+            background: #2D2D2D;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #fff;
+            margin: 0 2px;
         }
 
+        /* Footer */
         footer {
             border-top: 1px solid var(--border);
-            padding: 3rem 0;
+            padding: 4rem 0;
             text-align: center;
             color: var(--text-muted);
             font-size: 0.9rem;
         }
 
-        footer p {
-            margin-bottom: 1rem;
+        .footer-links {
+            margin-bottom: 1.5rem;
         }
 
         .footer-links a {
@@ -292,8 +390,8 @@
                 font-size: 2.5rem;
             }
 
-            .install-box {
-                width: 100%;
+            .container {
+                padding: 0 1.5rem;
             }
         }
     </style>
@@ -303,37 +401,49 @@
 
     <div class="container">
         <nav>
-            <a href="#" class="logo">
-                git<span>-</span>scope
-            </a>
+            <a href="#" class="logo">git<span>-</span>scope</a>
             <a href="https://github.com/Bharath-code/git-scope" class="github-link" target="_blank">
-                <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
+                <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
                     <path
                         d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
                 </svg>
+                <span id="star-count">GitHub</span>
             </a>
         </nav>
 
         <section class="hero">
             <h1>Control Your <br> <span class="gradient-text">Git Universe</span></h1>
             <p class="subtitle">
-                A blazing fast TUI to manage, search, and clean up all your repositories. See everything at a glance.
-                Zero config required.
+                A blazing fast TUI to manage, search, and clean up all your repositories.<br>
+                See everything at a glance. Zero config required.
             </p>
 
-            <div class="install-box"
-                onclick="navigator.clipboard.writeText('brew tap Bharath-code/tap\nbrew install git-scope'); alert('Copied cmds!');">
-                <div class="install-line">
-                    <span class="prompt">$</span>
-                    <span class="cmd">brew tap Bharath-code/tap</span>
+            <div class="install-section">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('brew')">Homebrew Tap</button>
+                    <button class="tab-btn" onclick="switchTab('go')">Go Install</button>
+                    <button class="tab-btn" onclick="switchTab('manual')">Manual</button>
                 </div>
-                <div class="install-line">
-                    <span class="prompt">$</span>
-                    <span class="cmd">brew install git-scope</span>
+
+                <div class="install-box" onclick="copyCode()">
+                    <span class="copy-hint">Click to copy</span>
+
+                    <div id="code-brew" class="code-block active">
+                        <div><span class="prompt">$</span><span class="cmd">brew tap Bharath-code/tap</span></div>
+                        <div><span class="prompt">$</span><span class="cmd">brew install git-scope</span></div>
+                    </div>
+
+                    <div id="code-go" class="code-block">
+                        <div><span class="prompt">$</span><span class="cmd">go install
+                                github.com/Bharath-code/git-scope/cmd/git-scope@latest</span></div>
+                    </div>
+
+                    <div id="code-manual" class="code-block">
+                        <span class="comment"># Download binary from Releases page, then:</span>
+                        <div><span class="prompt">$</span><span class="cmd">./git-scope</span></div>
+                    </div>
                 </div>
             </div>
-
-            <p style="margin-top:1rem; font-size: 0.8rem; color:#555;">(Click to copy)</p>
         </section>
 
         <section class="demo-section">
@@ -350,28 +460,33 @@
 
         <div class="features">
             <div class="card">
-                <div class="card-icon">⚡️</div>
-                <h3>Instant Overview</h3>
-                <p>Never manually check recursive folders again. Git-scope finds, parses, and caches your entire
-                    directory tree in milliseconds.</p>
+                <h3><span class="card-icon">⚡️</span> Instant Overview</h3>
+                <p>Git-scope finds, parses, and caches your entire directory tree in milliseconds. It knows where your
+                    work is hidden.</p>
             </div>
             <div class="card">
-                <div class="card-icon">🔍</div>
-                <h3>Fuzzy Search</h3>
-                <p>Lost a repo? Just press <code>/</code> and type meaningful parts of the name. Filter by dirty state
-                    to find unfinished work instantly.</p>
+                <h3><span class="card-icon">🔍</span> Fuzzy Search</h3>
+                <p>Lost a repo? Press <span class="key">/</span> to search by name or branch. Filter rows instantly as
+                    you type.</p>
             </div>
             <div class="card">
-                <div class="card-icon">⌨️</div>
-                <h3>Keyboard Flow</h3>
-                <p>Vim-style navigation (j/k). Sort by 'Dirty' to triage. Press Enter to launch your editor exactly
-                    where you need to be.</p>
+                <h3><span class="card-icon">🛡️</span> Dirty Radar</h3>
+                <p>Press <span class="key">f</span> to filter by status. See only valid work-in-progress and ignore
+                    clean repos.</p>
             </div>
             <div class="card">
-                <div class="card-icon">🛡️</div>
-                <h3>Zero Ambiguity</h3>
-                <p>Know exactly what is staged, modified, or untracked. No more "did I push that?" anxiety before you
-                    shut down.</p>
+                <h3><span class="card-icon">⌨️</span> Keyboard Driven</h3>
+                <p>Vim-style <span class="key">j</span> <span class="key">k</span> navigation. Press <span
+                        class="key">Enter</span> to launch your editor at the root.</p>
+            </div>
+            <div class="card">
+                <h3><span class="card-icon">🧹</span> Auto-Discovery</h3>
+                <p>Recursively scans your code folders. Ignore patterns included for <code>node_modules</code> and
+                    others.</p>
+            </div>
+            <div class="card">
+                <h3><span class="card-icon">📝</span> Sorting</h3>
+                <p>Sort by dirty status, name, branch, or recency. Triage your day in seconds.</p>
             </div>
         </div>
 
@@ -381,9 +496,53 @@
                 <a href="https://github.com/Bharath-code/git-scope/releases">Releases</a>
                 <a href="https://github.com/Bharath-code/git-scope/issues">Issues</a>
             </div>
-            <p style="margin-top: 2rem;">&copy; 2025 Git-Scope. MIT License.</p>
+            <p>&copy; 2025 Git-Scope. MIT License.</p>
         </footer>
     </div>
+
+    <script>
+    // Star Count Fetcher
+    fetch('https://api.github.com/repos/Bharath-code/git-scope')
+        .then(response => response.json())
+        .then(data => {
+            if (data.stargazers_count !== undefined) {
+                const count = data.stargazers_count;
+                // Format: 1.2k if > 1000
+                const formatted = count > 1000 ? (count/1000).toFixed(1) + 'k' : count;
+                document.getElementById('star-count').textContent = `Star ${formatted}`;
+            }
+        })
+        .catch(err => console.log('Failed to fetch stars', err));
+
+    // Tabs
+    function switchTab(id) {
+        // Headers
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Content
+        document.querySelectorAll('.code-block').forEach(b => b.classList.remove('active'));
+        document.getElementById('code-' + id).classList.add('active');
+    }
+
+    // Copy
+    function copyCode() {
+        const activeBlock = document.querySelector('.code-block.active');
+        let text = "";
+        activeBlock.querySelectorAll('.cmd').forEach(el => text += el.innerText + "\n");
+        text = text.trim();
+        
+        navigator.clipboard.writeText(text).then(() => {
+            const hint = document.querySelector('.copy-hint');
+            const original = hint.innerText;
+            hint.innerText = "Copied!";
+            hint.style.opacity = '1';
+            setTimeout(() => {
+                hint.innerText = original;
+            }, 2000);
+        });
+    }
+    </script>
 
 </body>
 
