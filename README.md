@@ -33,6 +33,11 @@ brew tap Bharath-code/tap
 brew install git-scope
 ```
 
+**To Update:**
+```bash
+brew upgrade git-scope
+```
+
 ### From Source
 ```bash
 go install github.com/Bharath-code/git-scope/cmd/git-scope@latest
