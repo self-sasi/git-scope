@@ -543,17 +543,35 @@
         analytics.track('page_view', { page: window.location.pathname });
 
         // ===============================
+        // GOATCOUNTER EVENT TRACKING
+        // ===============================
+        // Helper function to track events with GoatCounter
+        function trackEvent(eventName, title) {
+            if (window.goatcounter && window.goatcounter.count) {
+                window.goatcounter.count({
+                    path: eventName,
+                    title: title || eventName,
+                    event: true
+                });
+            }
+        }
+
+        // ===============================
         // SCROLL DEPTH TRACKING
         // ===============================
         let maxScroll = 0;
+        let scrollMilestones = { 25: false, 50: false, 75: false, 100: false };
         window.addEventListener('scroll', () => {
             const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
             if (scrollPercent > maxScroll) {
                 maxScroll = scrollPercent;
                 // Track milestones: 25%, 50%, 75%, 100%
-                if ([25, 50, 75, 100].includes(scrollPercent)) {
-                    analytics.track('scroll_depth', { percent: scrollPercent });
-                }
+                [25, 50, 75, 100].forEach(milestone => {
+                    if (scrollPercent >= milestone && !scrollMilestones[milestone]) {
+                        scrollMilestones[milestone] = true;
+                        trackEvent('scroll-' + milestone + '-percent', 'Scrolled ' + milestone + '% of page');
+                    }
+                });
             }
         });
 
@@ -572,7 +590,7 @@
             .catch(err => console.log('Failed to fetch stars', err));
 
         // ===============================
-        // TAB SWITCHING
+        // TAB SWITCHING (with tracking)
         // ===============================
         function switchTab(id) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -580,8 +598,8 @@
             document.querySelectorAll('.code-block').forEach(b => b.classList.remove('active'));
             document.getElementById('code-' + id).classList.add('active');
             
-            // Track tab switch
-            analytics.track('tab_switch', { tab: id });
+            // Track tab switch with GoatCounter
+            trackEvent('tab-' + id, 'Switched to ' + id + ' install tab');
         }
 
         // ===============================
@@ -602,8 +620,8 @@
                     hint.innerText = original;
                 }, 2000);
                 
-                // Track command copy
-                analytics.track('command_copied', { command: text.split('\n')[0] });
+                // Track command copy with GoatCounter
+                trackEvent('command-copied', 'Copied install command');
             });
         }
 
@@ -611,13 +629,14 @@
         // GITHUB BUTTON CLICK TRACKING
         // ===============================
         document.getElementById('github-btn')?.addEventListener('click', () => {
-            analytics.track('github_click', { location: 'nav' });
+            trackEvent('github-click-nav', 'Clicked GitHub button in nav');
         });
 
         // Track all footer GitHub links
         document.querySelectorAll('footer a').forEach(link => {
             link.addEventListener('click', () => {
-                analytics.track('footer_link_click', { href: link.href });
+                const linkName = link.textContent.trim();
+                trackEvent('footer-click-' + linkName.toLowerCase(), 'Clicked ' + linkName + ' in footer');
             });
         });
 
