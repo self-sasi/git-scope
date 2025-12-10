@@ -43,6 +43,9 @@ brew upgrade git-scope
 go install github.com/Bharath-code/git-scope/cmd/git-scope@latest
 ```
 
+**To Update:**
+Run the install command again to fetch the latest version.
+
 ## Usage
 
 ### Launch TUI
