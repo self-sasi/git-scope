@@ -241,6 +241,8 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             text-align: left;
             position: relative;
+            display: block;
+            width: 100%;
         }
 
         .install-box:hover {
@@ -472,7 +474,7 @@
             <a href="#" class="logo">git<span>-</span>scope</a>
             <div style="display: flex; gap: 1rem; align-items: center;">
                 <img src="https://img.shields.io/github/downloads/Bharath-code/git-scope/total?style=flat-square&color=7C3AED&label=Downloads"
-                    alt="Downloads" style="height: 20px;">
+                    alt="Downloads" style="height: 20px;" height="20">
                 <a href="https://github.com/Bharath-code/git-scope" class="github-link" target="_blank" id="github-btn">
                     <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
                         <path
@@ -483,145 +485,151 @@
             </div>
         </nav>
 
-        <section class="hero">
-            <h1>Stop <span class="gradient-text">CD-ing.</span> <br> Start Coding.</h1>
-            <p class="subtitle">
-                God-mode for your git repositories. Manage, search, and clean up 50+ projects in milliseconds.<br>
-                Runs on <strong>macOS</strong>, <strong>Linux</strong>, and <strong>Windows</strong>.
-            </p>
+        <main>
+            <section class="hero">
+                <h1>Stop <span class="gradient-text">CD-ing.</span> <br> Start Coding.</h1>
+                <p class="subtitle">
+                    God-mode for your git repositories. Manage, search, and clean up 50+ projects in milliseconds.<br>
+                    Runs on <strong>macOS</strong>, <strong>Linux</strong>, and <strong>Windows</strong>.
+                </p>
 
-            <div class="install-section">
-                <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab('brew')">Homebrew (Mac/Linux)</button>
-                    <button class="tab-btn" onclick="switchTab('go')">Go Install (All)</button>
-                    <button class="tab-btn" onclick="switchTab('windows')">Windows</button>
-                    <button class="tab-btn" onclick="switchTab('manual')">Binary</button>
-                </div>
-
-                <div class="install-box" onclick="copyCode()">
-                    <span class="copy-hint">Click to copy</span>
-
-                    <div id="code-brew" class="code-block active">
-                        <div><span class="prompt">$</span><span class="cmd">brew tap Bharath-code/tap</span></div>
-                        <div><span class="prompt">$</span><span class="cmd">brew install git-scope</span></div>
+                <div class="install-section">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('brew')">Homebrew (Mac/Linux)</button>
+                        <button class="tab-btn" onclick="switchTab('go')">Go Install (All)</button>
+                        <button class="tab-btn" onclick="switchTab('windows')">Windows</button>
+                        <button class="tab-btn" onclick="switchTab('manual')">Binary</button>
                     </div>
 
-                    <div id="code-go" class="code-block">
-                        <div><span class="prompt">$</span><span class="cmd">go install
-                                github.com/Bharath-code/git-scope/cmd/git-scope@latest</span></div>
+                    <button class="install-box" onclick="copyCode()" aria-label="Copy install command">
+                        <span class="copy-hint">Click to copy</span>
+
+                        <div id="code-brew" class="code-block active">
+                            <div><span class="prompt">$</span><span class="cmd">brew tap Bharath-code/tap</span></div>
+                            <div><span class="prompt">$</span><span class="cmd">brew install git-scope</span></div>
+                        </div>
+
+                        <div id="code-go" class="code-block">
+                            <div><span class="prompt">$</span><span class="cmd">go install
+                                    github.com/Bharath-code/git-scope/cmd/git-scope@latest</span></div>
+                        </div>
+
+                        <div id="code-windows" class="code-block">
+                            <span class="comment"># Install or Update (PowerShell)</span>
+                            <div><span class="prompt">></span><span class="cmd">go install
+                                    github.com/Bharath-code/git-scope/cmd/git-scope@latest</span></div>
+                            <span class="comment"># Running this again updates to the latest version.</span>
+                        </div>
+
+                        <div id="code-manual" class="code-block">
+                            <span class="comment"># Download binary from Releases page, then:</span>
+                            <div><span class="prompt">$</span><span class="cmd">./git-scope</span></div>
+                        </div>
+                    </button>
+
+                    <div style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted)">
+                        <p>Supports Windows Powershell, WSL, Linux shells, and macOS.</p>
                     </div>
+                </div>
+            </section>
 
-                    <div id="code-windows" class="code-block">
-                        <span class="comment"># Install or Update (PowerShell)</span>
-                        <div><span class="prompt">></span><span class="cmd">go install
-                                github.com/Bharath-code/git-scope/cmd/git-scope@latest</span></div>
-                        <span class="comment"># Running this again updates to the latest version.</span>
+            <section class="value-prop" style="margin-bottom: 6rem; text-align: center;">
+                <p
+                    style="color: var(--primary); font-weight: 600; letter-spacing: 0.05em; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.9rem;">
+                    Why Git-Scope?</p>
+                <h2 style="font-size: clamp(2rem, 4vw, 2.5rem); margin-bottom: 2rem; font-weight: 700;">Stop Manually
+                    <code style="font-size: 0.8em; color: var(--primary);">cd</code>-ing Everywhere</h2>
+                <div
+                    style="max-width: 700px; margin: 0 auto; color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
+                    <p>Do you have 50+ git repos scattered across `~/code`, `~/projects`, and `~/work`? Finding that one
+                        side-project from 3 months ago shouldn't take 5 minutes.</p>
+                    <div style="height: 1.5rem;"></div>
+                    <p>Git-Scope gives you a <strong style="color: var(--text-main);">God-mode view</strong> of your
+                        entire
+                        git universe. See what's dirty, what needs pushing, and jump into any repo instantly.</p>
+
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <img src="https://img.shields.io/badge/Written_in-Go-00ADD8?style=flat-square&logo=go"
+                            alt="Written in Go" height="20">
+                        <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License"
+                            height="20">
+                        <img src="https://img.shields.io/badge/Speed-Blazing_Fast-f9bf2d?style=flat-square"
+                            alt="Blazing Fast" height="20">
                     </div>
+                </div>
+            </section>
 
-                    <div id="code-manual" class="code-block">
-                        <span class="comment"># Download binary from Releases page, then:</span>
-                        <div><span class="prompt">$</span><span class="cmd">./git-scope</span></div>
+            <section class="demo-section">
+                <div class="window-frame">
+                    <div class="window-header">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
                     </div>
+                    <picture>
+                        <source srcset="git-scope-demo.webp" type="image/webp">
+                        <img src="demo-static.png" alt="Git Scope Demo" loading="lazy" width="1200" height="800"
+                            style="width: 100%; height: auto; display: block;">
+                    </picture>
                 </div>
+            </section>
 
-                <div style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted)">
-                    <p>Supports Windows Powershell, WSL, Linux shells, and macOS.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="value-prop" style="margin-bottom: 6rem; text-align: center;">
-            <p
-                style="color: var(--primary); font-weight: 600; letter-spacing: 0.05em; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.9rem;">
-                Why Git-Scope?</p>
-            <h2 style="font-size: clamp(2rem, 4vw, 2.5rem); margin-bottom: 2rem; font-weight: 700;">Stop Manually <code
-                    style="font-size: 0.8em; color: var(--primary);">cd</code>-ing Everywhere</h2>
-            <div
-                style="max-width: 700px; margin: 0 auto; color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-                <p>Do you have 50+ git repos scattered across `~/code`, `~/projects`, and `~/work`? Finding that one
-                    side-project from 3 months ago shouldn't take 5 minutes.</p>
-                <div style="height: 1.5rem;"></div>
-                <p>Git-Scope gives you a <strong style="color: var(--text-main);">God-mode view</strong> of your entire
-                    git universe. See what's dirty, what needs pushing, and jump into any repo instantly.</p>
-
-                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <img src="https://img.shields.io/badge/Written_in-Go-00ADD8?style=flat-square&logo=go"
-                        alt="Written in Go">
-                    <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License">
-                    <img src="https://img.shields.io/badge/Speed-Blazing_Fast-f9bf2d?style=flat-square"
-                        alt="Blazing Fast">
-                </div>
-            </div>
-        </section>
-
-        <section class="demo-section">
-            <div class="window-frame">
-                <div class="window-header">
-                    <div class="dot red"></div>
-                    <div class="dot yellow"></div>
-                    <div class="dot green"></div>
-                </div>
-                <picture>
-                    <source srcset="git-scope-demo.webp" type="image/webp">
-                    <img src="demo-static.png" alt="Git Scope Demo" loading="lazy" width="1200" height="800"
-                        style="width: 100%; height: auto; display: block;">
-                </picture>
-            </div>
-        </section>
-
-        <div class="features">
-            <div class="card">
-                <h3><span class="card-icon">⚡️</span> Instant Overview</h3>
-                <p>Git-scope finds, parses, and caches your entire directory tree in milliseconds. It knows where your
-                    work is hidden.</p>
-            </div>
-            <div class="card">
-                <h3><span class="card-icon">🔍</span> Fuzzy Search</h3>
-                <p>Lost a repo? Press <span class="key">/</span> to search by name or branch. Filter rows instantly as
-                    you type.</p>
-            </div>
-            <div class="card">
-                <h3><span class="card-icon">🛡️</span> Dirty Radar</h3>
-                <p>Press <span class="key">f</span> to filter by status. See only valid work-in-progress and ignore
-                    clean repos.</p>
-            </div>
-            <div class="card">
-                <h3><span class="card-icon">⌨️</span> Keyboard Driven</h3>
-                <p>Vim-style <span class="key">j</span> <span class="key">k</span> navigation. Press <span
-                        class="key">Enter</span> to launch your editor at the root.</p>
-            </div>
-            <div class="card">
-                <h3><span class="card-icon">🧹</span> Auto-Discovery</h3>
-                <p>Recursively scans your code folders. Ignore patterns included for <code>node_modules</code> and
-                    others.</p>
-            </div>
-            <div class="card">
-                <h3><span class="card-icon">📝</span> Sorting</h3>
-                <p>Sort by dirty status, name, branch, or recency. Triage your day in seconds.</p>
-            </div>
-        </div>
-
-        <section class="roadmap" style="margin-bottom: 6rem; text-align: center;">
-            <p
-                style="color: var(--primary); font-weight: 600; letter-spacing: 0.05em; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.9rem;">
-                Coming Soon</p>
-            <h2 style="font-size: clamp(2rem, 3vw, 2.5rem); margin-bottom: 3rem; font-weight: 700;">Roadmap</h2>
-
-            <div class="features" style="max-width: 900px; margin: 0 auto; text-align: left;">
+            <div class="features">
                 <div class="card">
-                    <h3><span class="card-icon">👁️</span> Background Watcher</h3>
-                    <p>Daemon mode to watch filesystem changes in real-time without manual rescans.</p>
+                    <h3><span class="card-icon">⚡️</span> Instant Overview</h3>
+                    <p>Git-scope finds, parses, and caches your entire directory tree in milliseconds. It knows where
+                        your
+                        work is hidden.</p>
                 </div>
                 <div class="card">
-                    <h3><span class="card-icon">🚀</span> Quick Actions</h3>
-                    <p>Pull, push, and sync repositories directly from the dashboard.</p>
+                    <h3><span class="card-icon">🔍</span> Fuzzy Search</h3>
+                    <p>Lost a repo? Press <span class="key">/</span> to search by name or branch. Filter rows instantly
+                        as
+                        you type.</p>
                 </div>
                 <div class="card">
-                    <h3><span class="card-icon">👥</span> Team Dashboards</h3>
-                    <p>Shared configuration and status views for engineering teams.</p>
+                    <h3><span class="card-icon">🛡️</span> Dirty Radar</h3>
+                    <p>Press <span class="key">f</span> to filter by status. See only valid work-in-progress and ignore
+                        clean repos.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="card-icon">⌨️</span> Keyboard Driven</h3>
+                    <p>Vim-style <span class="key">j</span> <span class="key">k</span> navigation. Press <span
+                            class="key">Enter</span> to launch your editor at the root.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="card-icon">🧹</span> Auto-Discovery</h3>
+                    <p>Recursively scans your code folders. Ignore patterns included for <code>node_modules</code> and
+                        others.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="card-icon">📝</span> Sorting</h3>
+                    <p>Sort by dirty status, name, branch, or recency. Triage your day in seconds.</p>
                 </div>
             </div>
-        </section>
+
+            <section class="roadmap" style="margin-bottom: 6rem; text-align: center;">
+                <p
+                    style="color: var(--primary); font-weight: 600; letter-spacing: 0.05em; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.9rem;">
+                    Coming Soon</p>
+                <h2 style="font-size: clamp(2rem, 3vw, 2.5rem); margin-bottom: 3rem; font-weight: 700;">Roadmap</h2>
+
+                <div class="features" style="max-width: 900px; margin: 0 auto; text-align: left;">
+                    <div class="card">
+                        <h3><span class="card-icon">👁️</span> Background Watcher</h3>
+                        <p>Daemon mode to watch filesystem changes in real-time without manual rescans.</p>
+                    </div>
+                    <div class="card">
+                        <h3><span class="card-icon">🚀</span> Quick Actions</h3>
+                        <p>Pull, push, and sync repositories directly from the dashboard.</p>
+                    </div>
+                    <div class="card">
+                        <h3><span class="card-icon">👥</span> Team Dashboards</h3>
+                        <p>Shared configuration and status views for engineering teams.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
 
         <footer>
             <div class="footer-links">
@@ -653,137 +661,7 @@
         </footer>
     </div>
 
-    <script>
-        // ===============================
-        // ANALYTICS SETUP
-        // ===============================
-        // To enable analytics, set up free Umami (https://umami.is) and replace:
-        // data-website-id="YOUR_WEBSITE_ID" with your actual ID
-        // Or use Cloudflare Web Analytics (also free)
-
-        // Simple analytics object for tracking events
-        const analytics = {
-            events: [],
-            track: function (name, data = {}) {
-                const event = { name, data, time: new Date().toISOString() };
-                this.events.push(event);
-                console.log('[Analytics]', name, data);
-                // If you have Umami, uncomment:
-                // if (window.umami) umami.track(name, data);
-            }
-        };
-
-        // Track page view
-        analytics.track('page_view', { page: window.location.pathname });
-
-        // ===============================
-        // GOATCOUNTER EVENT TRACKING
-        // ===============================
-        // Helper function to track events with GoatCounter
-        function trackEvent(eventName, title) {
-            if (window.goatcounter && window.goatcounter.count) {
-                window.goatcounter.count({
-                    path: eventName,
-                    title: title || eventName,
-                    event: true
-                });
-            }
-        }
-
-        // ===============================
-        // SCROLL DEPTH TRACKING
-        // ===============================
-        let maxScroll = 0;
-        let scrollMilestones = { 25: false, 50: false, 75: false, 100: false };
-        window.addEventListener('scroll', () => {
-            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-            if (scrollPercent > maxScroll) {
-                maxScroll = scrollPercent;
-                // Track milestones: 25%, 50%, 75%, 100%
-                [25, 50, 75, 100].forEach(milestone => {
-                    if (scrollPercent >= milestone && !scrollMilestones[milestone]) {
-                        scrollMilestones[milestone] = true;
-                        trackEvent('scroll-' + milestone + '-percent', 'Scrolled ' + milestone + '% of page');
-                    }
-                });
-            }
-        });
-
-        // ===============================
-        // STAR COUNT FETCHER
-        // ===============================
-        fetch('https://api.github.com/repos/Bharath-code/git-scope')
-            .then(response => response.json())
-            .then(data => {
-                if (data.stargazers_count !== undefined) {
-                    const count = data.stargazers_count;
-                    const formatted = count > 1000 ? (count / 1000).toFixed(1) + 'k' : count;
-                    document.getElementById('star-count').textContent = `Star ${formatted}`;
-                }
-            })
-            .catch(err => console.log('Failed to fetch stars', err));
-
-        // ===============================
-        // TAB SWITCHING (with tracking)
-        // ===============================
-        function switchTab(id) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            document.querySelectorAll('.code-block').forEach(b => b.classList.remove('active'));
-            document.getElementById('code-' + id).classList.add('active');
-
-            // Track tab switch with GoatCounter
-            trackEvent('tab-' + id, 'Switched to ' + id + ' install tab');
-        }
-
-        // ===============================
-        // COPY COMMAND (with tracking)
-        // ===============================
-        function copyCode() {
-            const activeBlock = document.querySelector('.code-block.active');
-            let text = "";
-            activeBlock.querySelectorAll('.cmd').forEach(el => text += el.innerText + "\n");
-            text = text.trim();
-
-            navigator.clipboard.writeText(text).then(() => {
-                const hint = document.querySelector('.copy-hint');
-                const original = hint.innerText;
-                hint.innerText = "Copied!";
-                hint.style.opacity = '1';
-                setTimeout(() => {
-                    hint.innerText = original;
-                }, 2000);
-
-                // Track command copy with GoatCounter
-                trackEvent('command-copied', 'Copied install command');
-            });
-        }
-
-        // ===============================
-        // GITHUB BUTTON CLICK TRACKING
-        // ===============================
-        document.getElementById('github-btn')?.addEventListener('click', () => {
-            trackEvent('github-click-nav', 'Clicked GitHub button in nav');
-        });
-
-        // Track all footer GitHub links
-        document.querySelectorAll('footer a').forEach(link => {
-            link.addEventListener('click', () => {
-                const linkName = link.textContent.trim();
-                trackEvent('footer-click-' + linkName.toLowerCase(), 'Clicked ' + linkName + ' in footer');
-            });
-        });
-
-        // ===============================
-        // SESSION SUMMARY (on page unload)
-        // ===============================
-        window.addEventListener('beforeunload', () => {
-            analytics.track('session_end', {
-                maxScroll: maxScroll,
-                totalEvents: analytics.events.length
-            });
-        });
-    </script>
+    <script src="main.js" defer></script>
 
     <!-- 
     TO ENABLE REAL ANALYTICS:
