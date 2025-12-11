@@ -93,7 +93,7 @@
         }
 
         html {
-            overflow-x: hidden;
+            /* overflow-x: hidden; removed to fix sticky nav */
             scroll-behavior: smooth;
         }
 
@@ -181,9 +181,11 @@
 
         @media (max-width: 768px) {
             nav {
-                flex-wrap: wrap;
-                gap: 1rem;
-                justify-content: center;
+                /* flex-wrap: wrap; removed to keep items on same line */
+                gap: 0.5rem;
+                justify-content: space-between;
+                padding-left: 1rem;
+                padding-right: 1rem;
             }
 
             /* Hide nav links on mobile to prevent layout issues */
@@ -192,7 +194,7 @@
             }
 
             .logo {
-                margin-right: auto;
+                margin-right: 0;
             }
         }
 
@@ -438,6 +440,8 @@
             padding: 0.5rem;
             border-radius: 8px;
             font-size: 1.25rem;
+            min-width: 2.5rem;
+            text-align: center;
         }
 
         .card p {
@@ -603,7 +607,7 @@
                 </div>
                 <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.1);"></div>
                 <img src="https://img.shields.io/github/downloads/Bharath-code/git-scope/total?style=flat-square&color=7C3AED&label=Downloads"
-                    alt="Downloads" style="height: 20px;" height="20">
+                    alt="Downloads" style="height: 20px;" width="100" height="20">
                 <a href="https://github.com/Bharath-code/git-scope" class="github-link" target="_blank" id="github-btn">
                     <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
                         <path
@@ -689,11 +693,11 @@
 
                     <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                         <img src="https://img.shields.io/badge/Written_in-Go-00ADD8?style=flat-square&logo=go"
-                            alt="Written in Go" height="20">
+                            alt="Written in Go" width="90" height="20">
                         <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License"
-                            height="20">
+                            width="80" height="20">
                         <img src="https://img.shields.io/badge/Speed-Blazing_Fast-f9bf2d?style=flat-square"
-                            alt="Blazing Fast" height="20">
+                            alt="Blazing Fast" width="90" height="20">
                     </div>
                 </div>
             </section>
@@ -708,7 +712,7 @@
                     <picture>
                         <source srcset="git-scope-demo-1.webp" type="image/webp">
                         <img src="demo-static.png" alt="Git Scope Demo" loading="lazy" width="1200" height="800"
-                            style="width: 100%; height: auto; display: block;">
+                            style="width: 100%; height: auto; display: block;" decoding="async" fetchpriority="low">
                     </picture>
                 </div>
             </section>
@@ -826,8 +830,7 @@
             <p>&copy; 2025 Git-Scope. Released under the <a
                     href="https://github.com/Bharath-code/git-scope/blob/main/LICENSE"
                     style="color: var(--text-muted); text-decoration: underline;">MIT License</a>.</p>
-            <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.6;">Designed by <a
-                    href="https://github.com/Bharath-code"
+            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Designed by <a href="https://github.com/Bharath-code"
                     style="color: inherit; text-decoration: none;">Bharathkumar</a></p>
         </footer>
 
