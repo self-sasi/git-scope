@@ -249,22 +249,8 @@ func renderDiskPanel(data *stats.DiskUsageData, width, height int) string {
 	}
 	b.WriteString("\n")
 
-	// Bar chart (show top repos that fit)
-	maxRows := height - 10
-	if maxRows < 3 {
-		maxRows = 3
-	}
-	if maxRows > 12 {
-		maxRows = 12
-	}
-
-	barWidth := width - 35 // Leave more room for name and size
-	if barWidth < 8 {
-		barWidth = 8
-	}
-	if barWidth > 25 {
-		barWidth = 25 // Cap max width to prevent overflow
-	}
+	maxRows := diskMaxRows(height)
+	barWidth := diskBarWidth(width)
 
 	for i, repo := range data.Repos {
 		if i >= maxRows {
@@ -283,20 +269,8 @@ func renderDiskPanel(data *stats.DiskUsageData, width, height int) string {
 		name = fmt.Sprintf("%-10s", name)
 
 		// Calculate bar lengths
-		gitBarLen := 0
-		nodeBarLen := 0
-
-		if data.MaxSize > 0 {
-			gitBarLen = int(float64(repo.GitSize) / float64(data.MaxSize) * float64(barWidth))
-			nodeBarLen = int(float64(repo.NodeModulesSize) / float64(data.MaxSize) * float64(barWidth))
-		}
-
-		if gitBarLen < 1 && repo.GitSize > 0 {
-			gitBarLen = 1
-		}
-		if nodeBarLen < 1 && repo.NodeModulesSize > 0 {
-			nodeBarLen = 1
-		}
+		gitBarLen := diskBarLen(repo.GitSize, data.MaxSize, barWidth)
+		nodeBarLen := diskBarLen(repo.NodeModulesSize, data.MaxSize, barWidth)
 
 		// Create stacked bar (git + node_modules)
 		gitBar := strings.Repeat("█", gitBarLen)
@@ -321,6 +295,49 @@ func renderDiskPanel(data *stats.DiskUsageData, width, height int) string {
 	}
 
 	return b.String()
+}
+
+// diskMaxRows computes how many repository rows can be shown in the disk panel.
+// It subtracts space used by headers and legends, then clamps the result
+// between 3 and 12 rows.
+func diskMaxRows(height int) int {
+	maxRows := height - 10
+	if maxRows < 3 {
+		return 3
+	}
+	if maxRows > 12 {
+		return 12
+	}
+	return maxRows
+}
+
+// diskBarWidth computes the horizontal width of each disk-usage bar.
+// It reserves space for the repository name and size, then clamps the
+// remaining width between 8 and 25 characters.
+func diskBarWidth(width int) int {
+	barWidth := width - 35
+	if barWidth < 8 {
+		return 8
+	}
+	if barWidth > 25 {
+		return 25
+	}
+	return barWidth
+}
+
+// diskBarLen converts a repo size into a bar length relative to maxSize.
+// If size > 0, it returns at least 1 so non-zero repos are always visible.
+func diskBarLen(size, maxSize int64, barWidth int) int {
+	if maxSize <= 0 {
+		return 0
+	}
+
+	n := int(float64(size) / float64(maxSize) * float64(barWidth))
+	if n < 1 && size > 0 {
+		return 1
+	}
+
+	return n
 }
 
 // Timeline styling
@@ -375,17 +392,7 @@ func renderTimelinePanel(data *stats.TimelineData, width, height int) string {
 				b.WriteString("\n")
 			}
 
-			var dayStyle lipgloss.Style
-			switch entry.DayLabel {
-			case "Today":
-				dayStyle = timelineTodayStyle
-			case "Yesterday":
-				dayStyle = timelineYesterdayStyle
-			default:
-				dayStyle = timelineOlderStyle
-			}
-
-			b.WriteString(dayStyle.Render("● " + entry.DayLabel))
+			b.WriteString(timelineDayStyle(entry.DayLabel).Render("● " + entry.DayLabel))
 			b.WriteString("\n")
 			currentDayLabel = entry.DayLabel
 			rowCount++
@@ -433,4 +440,17 @@ func renderTimelinePanel(data *stats.TimelineData, width, height int) string {
 	}
 
 	return b.String()
+}
+
+// timelineDayStyle returns the style used for a given day label in the timeline.
+// "Today" and "Yesterday" are highlighted; everything else uses the muted style.
+func timelineDayStyle(dayLabel string) lipgloss.Style {
+	switch dayLabel {
+	case "Today":
+		return timelineTodayStyle
+	case "Yesterday":
+		return timelineYesterdayStyle
+	default:
+		return timelineOlderStyle
+	}
 }
